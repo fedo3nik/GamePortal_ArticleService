@@ -18,10 +18,7 @@ func Insert(ctx context.Context, p *pgxpool.Pool, a *entities.Article) (int, err
 	}
 
 	defer func() {
-		err := conn.Release
-		if err != nil {
-			log.Print("Release connection error")
-		}
+		conn.Release()
 	}()
 
 	row := conn.QueryRow(ctx, "INSERT INTO articles (userId, title, game, article_text, rating) VALUES($1, $2, $3, $4, $5) RETURNING id",
@@ -45,10 +42,7 @@ func Select(ctx context.Context, p *pgxpool.Pool, id int) (*entities.Article, er
 	}
 
 	defer func() {
-		err := conn.Release
-		if err != nil {
-			log.Print("Release connection error")
-		}
+		conn.Release()
 	}()
 
 	err = conn.QueryRow(ctx, "SELECT id, userId, title, game, article_text, rating FROM articles where id=$1", id).
