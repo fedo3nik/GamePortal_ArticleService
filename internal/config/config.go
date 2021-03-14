@@ -10,6 +10,7 @@ type Config struct {
 	PostgresURL string `envconfig:"POSTGRES_URL"`
 	Host        string `envconfig:"ARTICLESERVICE_HOST"`
 	Port        string `envconfig:"ARTICLESERVICE_PORT"`
+	GrpcPort    string `envconfig:"GRPC_PORT"`
 }
 
 func NewConfig() (*Config, error) {

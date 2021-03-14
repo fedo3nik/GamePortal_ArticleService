@@ -1,7 +1,6 @@
 package service
 
 import (
-	"io/ioutil"
 	"log"
 
 	"github.com/dgrijalva/jwt-go"
@@ -43,19 +42,14 @@ func (r RefreshTokenClaims) Valid() error {
 	return nil
 }
 
-func ValidateRefreshToken(tokenString string) (id, customKey string, er error) {
+func ValidateRefreshToken(tokenString, refreshKey string) (id, customKey string, er error) {
 	token, err := jwt.ParseWithClaims(tokenString, &RefreshTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			log.Printf("Unexpected method in token")
 			return nil, e.ErrJWT
 		}
 
-		// replace .pem from file to .pem received from gRpc
-		verifyBytes, err := ioutil.ReadFile("./refresh-public.pem")
-		if err != nil {
-			log.Printf("Unable to read public key: %v", err)
-			return nil, err
-		}
+		verifyBytes := []byte(refreshKey)
 
 		verifyKey, err := jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
 		if err != nil {
@@ -79,19 +73,14 @@ func ValidateRefreshToken(tokenString string) (id, customKey string, er error) {
 	return claims.UserID, claims.CustomKey, nil
 }
 
-func ValidateAccessToken(tokenString string) (string, error) {
+func ValidateAccessToken(tokenString, accessKey string) (string, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &AccessTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			log.Printf("Unexpected method in token")
 			return nil, e.ErrJWT
 		}
 
-		// replace .pem from file to .pem received from gRpc
-		verifyBytes, err := ioutil.ReadFile("./access-public.pem")
-		if err != nil {
-			log.Printf("Unable to read public key: %v", err)
-			return nil, err
-		}
+		verifyBytes := []byte(accessKey)
 
 		verifyKey, err := jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
 		if err != nil {

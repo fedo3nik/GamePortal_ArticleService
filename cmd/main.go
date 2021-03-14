@@ -5,7 +5,9 @@ import (
 	"log"
 	"net/http"
 
+	grpcInfra "github.com/fedo3nik/GamePortal_ArticleService/internal/infrastructure/grpc"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"google.golang.org/grpc"
 
 	"github.com/fedo3nik/GamePortal_ArticleService/internal/application/service"
 	"github.com/fedo3nik/GamePortal_ArticleService/internal/config"
@@ -26,17 +28,35 @@ func main() {
 
 	defer pool.Close()
 
+	grpcConn, err := grpc.Dial(c.GrpcPort, grpc.WithInsecure())
+	if err != nil {
+		log.Panicf("Grpc connection error: %v", err)
+	}
+
+	grpcClient := grpcInfra.NewSenderClient(grpcConn)
+
+	emp := grpcInfra.Empty{}
+
+	grpcResp, err := grpcClient.Send(context.Background(), &emp)
+	if err != nil {
+		log.Panicf("Grpc received error: %v", err)
+	}
+
 	handler := mux.NewRouter()
 
-	articleService := service.NewArticleService(pool)
+	articleService := service.NewArticleService(pool, grpcResp.AccessPublicKey, grpcResp.RefreshPublicKey)
 	addArticleHandler := controller.NewHTTPAddArticleHandler(articleService)
 	getArticleHandler := controller.NewHTTPGetArticleHandler(articleService)
 
 	handler.Handle("/new-article", addArticleHandler).Methods("POST")
 	handler.Handle("/article/{articleId}", getArticleHandler).Methods("GET")
 
-	err = http.ListenAndServe(c.Host+c.Port, handler)
-	if err != nil {
-		log.Panicf("Listen & Serve serror: %v", err)
-	}
+	go func() {
+		err = http.ListenAndServe(c.Host+c.Port, handler)
+		if err != nil {
+			log.Panicf("Listen & Serve serror: %v", err)
+		}
+	}()
+
+	select {}
 }
