@@ -5,6 +5,8 @@ import (
 	"log"
 	"strconv"
 
+	service "github.com/fedo3nik/GamePortal_ArticleService/internal/application"
+
 	"github.com/pkg/errors"
 
 	"github.com/fedo3nik/GamePortal_ArticleService/internal/domain/entities"
@@ -23,17 +25,17 @@ type ArticleService struct {
 }
 
 func (a ArticleService) AddArticle(ctx context.Context, title, game, text, token string) (*entities.Article, error) {
-	//TODO: Validate token
-	_ = token
+	userID, err := service.ValidateAccessToken(token)
+	if err != nil {
+		return nil, err
+	}
 
 	var article entities.Article
 	article.Title = title
 	article.Game = game
 	article.Text = text
 	article.Rating = 0
-
-	// test
-	article.UserID = "test"
+	article.UserID = userID
 
 	id, err := postgres.Insert(ctx, a.Pool, &article)
 	if err != nil {
