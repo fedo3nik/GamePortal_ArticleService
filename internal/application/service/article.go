@@ -21,11 +21,13 @@ type Article interface {
 }
 
 type ArticleService struct {
-	Pool *pgxpool.Pool
+	Pool       *pgxpool.Pool
+	AccessKey  string
+	RefreshKey string
 }
 
 func (a ArticleService) AddArticle(ctx context.Context, title, game, text, token string) (*entities.Article, error) {
-	userID, err := service.ValidateAccessToken(token)
+	userID, err := service.ValidateAccessToken(token, a.AccessKey)
 	if err != nil {
 		return nil, err
 	}
@@ -63,6 +65,6 @@ func (a ArticleService) GetArticle(ctx context.Context, strID string) (*entities
 	return art, nil
 }
 
-func NewArticleService(pool *pgxpool.Pool) *ArticleService {
-	return &ArticleService{Pool: pool}
+func NewArticleService(pool *pgxpool.Pool, accessKey, refreshKey string) *ArticleService {
+	return &ArticleService{Pool: pool, AccessKey: accessKey, RefreshKey: refreshKey}
 }

@@ -45,7 +45,7 @@ func Select(ctx context.Context, p *pgxpool.Pool, id int) (*entities.Article, er
 		conn.Release()
 	}()
 
-	err = conn.QueryRow(ctx, "SELECT id, userId, title, game, article_text, rating FROM articles where id=$1", id).
+	err = conn.QueryRow(ctx, "SELECT id, userId, title, game, article_text, rating FROM articles WHERE id=$1", id).
 		Scan(&a.ID, &a.UserID, &a.Title, &a.Game, &a.Text, &a.Rating)
 	if err != nil {
 		log.Printf("Select error: %v", err)
