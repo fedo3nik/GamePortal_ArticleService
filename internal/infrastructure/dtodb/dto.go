@@ -1,10 +1,16 @@
 package dtodb
 
 type ArticleDTO struct {
-	ID     int `sql:"int"`
+	ID     int
 	UserID string
 	Title  string
 	Game   string
-	Rating float64
 	Text   string
+}
+
+type RatingDTO struct {
+	ID           int
+	ArticleID    int
+	Rating       float64
+	CountOfMarks int
 }
