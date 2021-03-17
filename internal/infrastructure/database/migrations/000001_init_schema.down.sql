@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS ratting;
+DROP TABLE IF EXISTS articles;

@@ -98,11 +98,11 @@ func (hh HTTPGetArticleHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	resp.Game = article.Game
 	resp.UserID = article.UserID
 	resp.Text = article.Text
+	resp.Ratting = article.Rating
 
 	err = json.NewEncoder(w).Encode(&resp)
 	if err != nil {
-		log.Printf("Encode error: %v", err)
-
+		handleError(w, err)
 		return
 	}
 }
