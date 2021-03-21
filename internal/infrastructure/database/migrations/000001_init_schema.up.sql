@@ -6,9 +6,9 @@ CREATE TABLE IF NOT EXISTS articles(
     article_text text
 );
 
-CREATE TABLE IF NOT EXISTS ratting(
+CREATE TABLE IF NOT EXISTS rating(
     ID serial PRIMARY KEY,
     articleID serial,
-    ratting double precision,
+    rating double precision,
     CONSTRAINT fk_article FOREIGN KEY(articleID) REFERENCES Articles(ID)
 );

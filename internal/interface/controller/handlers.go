@@ -22,6 +22,10 @@ type HTTPGetArticleHandler struct {
 	articleService service.Article
 }
 
+type HTTPSetMarkToArticleHandler struct {
+	articleService service.Article
+}
+
 func handleError(w http.ResponseWriter, err error) {
 	if errors.Is(err, e.ErrDB) {
 		_, hError := fmt.Fprintf(w, "Error caused: %v", err)
@@ -98,11 +102,44 @@ func (hh HTTPGetArticleHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	resp.Game = article.Game
 	resp.UserID = article.UserID
 	resp.Text = article.Text
-	resp.Ratting = article.Rating
+	resp.Rating = article.Rating
 
 	err = json.NewEncoder(w).Encode(&resp)
 	if err != nil {
 		handleError(w, err)
+		return
+	}
+}
+
+func NewHTTPSetMarkToArticleHandler(articleService service.Article) *HTTPSetMarkToArticleHandler {
+	return &HTTPSetMarkToArticleHandler{articleService: articleService}
+}
+
+func (hh HTTPSetMarkToArticleHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var req dto.SetMarkRequest
+
+	var resp dto.SetMarkResponse
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		log.Printf("Body read error: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+
+		return
+	}
+
+	article, err := hh.articleService.SetMark(r.Context(), req.Title, req.Mark)
+	if err != nil {
+		handleError(w, err)
+		return
+	}
+
+	resp.ID = article.ID
+	resp.Rating = article.Rating
+
+	err = json.NewEncoder(w).Encode(&resp)
+	if err != nil {
+		log.Printf("Encode error: %v", err)
 		return
 	}
 }
