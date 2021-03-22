@@ -47,9 +47,11 @@ func main() {
 	articleService := service.NewArticleService(pool, grpcResp.AccessPublicKey, grpcResp.RefreshPublicKey)
 	addArticleHandler := controller.NewHTTPAddArticleHandler(articleService)
 	getArticleHandler := controller.NewHTTPGetArticleHandler(articleService)
+	setMarkHandler := controller.NewHTTPSetMarkToArticleHandler(articleService)
 
 	handler.Handle("/new-article", addArticleHandler).Methods("POST")
 	handler.Handle("/article/{articleId}", getArticleHandler).Methods("GET")
+	handler.Handle("/article/set-mark", setMarkHandler).Methods("POST")
 
 	go func() {
 		err = http.ListenAndServe(c.Host+c.Port, handler)

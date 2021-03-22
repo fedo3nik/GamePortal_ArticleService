@@ -18,6 +18,7 @@ import (
 type Article interface {
 	AddArticle(ctx context.Context, title string, game string, text string, token string) (*entities.Article, error)
 	GetArticle(ctx context.Context, ID string) (*entities.Article, error)
+	SetMark(ctx context.Context, title string, mark float64) (*entities.Article, error)
 }
 
 type ArticleService struct {
@@ -63,6 +64,20 @@ func (a ArticleService) GetArticle(ctx context.Context, strID string) (*entities
 	}
 
 	return art, nil
+}
+
+func (a ArticleService) SetMark(ctx context.Context, title string, mark float64) (*entities.Article, error) {
+	articleID, err := postgres.InsertRating(ctx, a.Pool, mark, title)
+	if err != nil {
+		return nil, err
+	}
+
+	article, err := postgres.Select(ctx, a.Pool, articleID)
+	if err != nil {
+		return nil, errors.Wrap(e.ErrDB, "select")
+	}
+
+	return article, nil
 }
 
 func NewArticleService(pool *pgxpool.Pool, accessKey, refreshKey string) *ArticleService {
