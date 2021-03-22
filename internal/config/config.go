@@ -8,9 +8,9 @@ import (
 
 type Config struct {
 	PostgresURL string `envconfig:"POSTGRES_URL"`
-	Host        string `envconfig:"ARTICLESERVICE_HOST"`
-	Port        string `envconfig:"ARTICLESERVICE_PORT"`
-	GrpcPort    string `envconfig:"GRPC_PORT"`
+	Host        string `envconfig:"ARTICLE_SERVICE_HOST"`
+	Port        string `envconfig:"ARTICLE_SERVICE_PORT"`
+	Grpc        string `envconfig:"GRPC_CONN_ADDR"`
 }
 
 func NewConfig() (*Config, error) {

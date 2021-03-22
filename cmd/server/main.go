@@ -28,7 +28,7 @@ func main() {
 
 	defer pool.Close()
 
-	grpcConn, err := grpc.Dial(c.GrpcPort, grpc.WithInsecure())
+	grpcConn, err := grpc.Dial(c.Grpc, grpc.WithInsecure())
 	if err != nil {
 		log.Panicf("Grpc connection error: %v", err)
 	}
@@ -49,7 +49,7 @@ func main() {
 	getArticleHandler := controller.NewHTTPGetArticleHandler(articleService)
 	setMarkHandler := controller.NewHTTPSetMarkToArticleHandler(articleService)
 
-	handler.Handle("/new-article", addArticleHandler).Methods("POST")
+	handler.Handle("/article/new-article", addArticleHandler).Methods("POST")
 	handler.Handle("/article/{articleId}", getArticleHandler).Methods("GET")
 	handler.Handle("/article/set-mark", setMarkHandler).Methods("POST")
 
